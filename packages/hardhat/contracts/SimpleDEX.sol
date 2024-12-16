@@ -2,9 +2,11 @@
 pragma solidity >=0.8.0 <0.9.0;
 
 // Useful for debugging. Remove when deploying to a live network.
+
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+
 // Use openzeppelin to inherit battle-tested implementations (ERC20, ERC721, etc)
 // import "@openzeppelin/contracts/access/Ownable.sol";
 
@@ -18,10 +20,10 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
  contract SimpleDEX{
     /// @notice Token A in the liquidity pool
-    IERC20 public tokenA;
+     IERC20 public TokenA;
 
     /// @notice Token B in the liquidity pool
-    IERC20 public tokenB;
+    IERC20 public TokenB;
 
   
     event LiquidityAdded(uint256 amountA, uint256 amountB);
@@ -35,8 +37,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
    
     function addLiquidity(uint256 amountA, uint256 amountB) external  {
         require(amountA > 0 && amountB > 0, "Amounts must be > 0");
-        tokenA.transferFrom(msg.sender, address(this), amountA);
-        tokenB.transferFrom(msg.sender, address(this), amountB);
+        TokenA.transferFrom(msg.sender, address(this), amountA);
+        TokenB.transferFrom(msg.sender, address(this), amountB);
 
         emit LiquidityAdded(amountA, amountB);
     }
@@ -46,10 +48,10 @@ import "@openzeppelin/contracts/access/Ownable.sol";
     /// @param amountA The amount of token A to remove
     /// @param amountB The amount of token B to remove
     function removeLiquidity(uint256 amountA, uint256 amountB) external  {
-        require(amountA <= tokenA.balanceOf(address(this)) && amountB <= tokenB.balanceOf(address(this)), "Low liquidity");
+        require(amountA <= TokenA.balanceOf(address(this)) && amountB <= TokenB.balanceOf(address(this)), "Low liquidity");
 
-        tokenA.transfer(msg.sender, amountA);
-        tokenB.transfer(msg.sender, amountB);
+        TokenA.transfer(msg.sender, amountA);
+        TokenB.transfer(msg.sender, amountB);
 
         emit LiquidityRemoved(amountA, amountB);
     }
@@ -60,10 +62,10 @@ import "@openzeppelin/contracts/access/Ownable.sol";
     function swapAforB(uint256 amountAIn) external {
         require(amountAIn > 0, "Amount must be > 0");
 
-        uint256 amountBOut = getAmountOut(amountAIn, tokenA.balanceOf(address(this)), tokenB.balanceOf(address(this)));
+        uint256 amountBOut = getAmountOut(amountAIn, TokenA.balanceOf(address(this)), TokenB.balanceOf(address(this)));
 
-        tokenA.transferFrom(msg.sender, address(this), amountAIn);
-        tokenB.transfer(msg.sender, amountBOut);
+        TokenA.transferFrom(msg.sender, address(this), amountAIn);
+        TokenB.transfer(msg.sender, amountBOut);
 
         emit TokenSwapped(msg.sender, amountAIn, amountBOut);
     }
@@ -72,21 +74,21 @@ import "@openzeppelin/contracts/access/Ownable.sol";
     function swapBforA(uint256 amountBIn) external {
         require(amountBIn > 0, "Amount must be > 0");
 
-        uint256 amountAOut = getAmountOut(amountBIn, tokenB.balanceOf(address(this)), tokenA.balanceOf(address(this)));
+        uint256 amountAOut = getAmountOut(amountBIn, TokenB.balanceOf(address(this)), TokenA.balanceOf(address(this)));
 
-        tokenB.transferFrom(msg.sender, address(this), amountBIn);
-        tokenA.transfer(msg.sender, amountAOut);
+        TokenB.transferFrom(msg.sender, address(this), amountBIn);
+        TokenA.transfer(msg.sender, amountAOut);
 
         emit TokenSwapped(msg.sender, amountBIn, amountAOut);
     }
  
 
     function getPrice(address _token) external view returns (uint256) {
-        require(_token == address(tokenA) || _token == address(tokenB), "Invalid token");
+        require(_token == address( TokenA) || _token == address( TokenB ), "Invalid token");
 
-        return _token == address(tokenA)
-            ? (tokenB.balanceOf(address(this)) * 1e18) / tokenA.balanceOf(address(this))
-            : (tokenA.balanceOf(address(this)) * 1e18) / tokenB.balanceOf(address(this));
+        return _token == address(TokenA)
+            ? (TokenB.balanceOf(address(this)) * 1e18) / TokenA.balanceOf(address(this))
+            : (TokenA.balanceOf(address(this)) * 1e18) / TokenB.balanceOf(address(this));
     }
 
 
